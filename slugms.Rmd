@@ -25,26 +25,25 @@ library(ggplot2) # plotting
 library(magrittr)
 library(cowplot)
 library(formatR)
+?read_excel
 
 ```
 ### Logic   
 
-**Background:** Dust entering the Sierras comes from both regional and global sources -- and the contribution of each source changes over time. There is evidence that microbial communities can differ based on dust source and timing of dust deflation, and that this can have subsequent effects on endophytic associations (Caroline Frank’s work) and soil microbial communities at the deposition location. We therefore wanted to know:  
+**Background:** Denise add text:  
   
-###**Q1. Do dust-associated microbial communities entering the Sierra Nevada differ across space and time?**   
+###**Q1. Does the sterility of rearing conditions alter slug-associated microbial communities ?**   
 
 ####Outputs:   
-####1. Determine the number of new OTUs identified at each site per sampling event  
+####1. Determine the richness of OTUs identified from each treatment  
 ####2. NMDS of unweighted unifrac or jaccard dissimilarity. PERMANOVA with PERMDISP. 
-*Limitation: our time comparisons may be skewed because we did not sterilize collectors in between sampling events. Time points may appear more similar to each other than in reality. It’s also important to run on presence-absence data only; we don’t want to capture community differences that are driven by post-depositional divergence in relative abundances.*  
+  
 
 ```{r read in mapping data, include=FALSE}
-map6<-read.csv("data/SierraMap6.csv", header = TRUE, 
-               col.names =   c("SampleID","BarcodeSequence","LinkerPrimerSequence","Year","Month","SiteCode","RepNum","SiteRep","Site","Elevation","DateCode","DescName","Description"))%>%
-  transform(Month=as.character(Month))%>% #transform to edit spellings
-  mutate(Month = ifelse(Month == 'Oct','October', Month)) # consolidate multiple spellings of October
-
-unique(map6$Month)
+map6<-read.csv("data/MapDJ.csv", header = TRUE, 
+               col.names =   c("SampleID","BarcodeSequence","LinkerPrimerSequence","Origin","Sterility","Plate","Description"))%>%
+  
+unique(map6$Origin)
 
 ```  
 
@@ -55,7 +54,7 @@ Split taxonomy column into multiple variables
 B16S<-read.csv("data/filtered_table_w_metadata.csv", header = TRUE, stringsAsFactors = FALSE)
 
 # split taxa groupings into new columns
-source('dust_functions.R')
+source('slug_functions.R')
 B16S<-split_taxa(B16S)
 ```  
 
