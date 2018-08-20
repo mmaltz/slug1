@@ -1,0 +1,62 @@
+'data.frame':	30 obs. of  7 variables:
+ $ SampleID            : Factor w/ 30 levels "ALN1","ALN2",..: 29 7 27 21 28 11 9 6 22 20 ...
+ $ BarcodeSequence     : logi  NA NA NA NA NA NA ...
+ $ LinkerPrimerSequence: logi  NA NA NA NA NA NA ...
+ $ Origin              : Factor w/ 2 levels "lab","wild": 2 2 2 1 2 2 1 2 1 2 ...
+ $ Sterility           : Factor w/ 2 levels "N","S": 1 2 1 2 1 2 1 2 2 2 ...
+ $ Plate               : Factor w/ 4 levels "A","B","C","na": 4 4 4 4 4 4 2 4 4 4 ...
+ $ Description         : Factor w/ 8 levels "LRNA","LRNB",..: 5 6 5 4 5 7 2 6 4 8 ...
+Permutation test for adonis under reduced model
+Terms added sequentially (first to last)
+Permutation: free
+Number of permutations: 1000
+
+adonis2(formula = unifrac ~ Sterility + Origin, data = grps, permutations = 1000)
+          Df SumOfSqs      R2      F   Pr(>F)
+Sterility  1   0.3663 0.05254 1.5873 0.014985 *
+Origin     1   0.3746 0.05373 1.6231 0.006993 **
+Residual  27   6.2308 0.89373
+Total     29   6.9717 1.00000
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Permutation test for adonis under reduced model
+Terms added sequentially (first to last)
+Permutation: free
+Number of permutations: 1000
+
+adonis2(formula = unifrac ~ Sterility + Origin + Plate, data = grps, permutations = 1000)
+          Df SumOfSqs      R2      F   Pr(>F)
+Sterility  1   0.3663 0.05254 1.6507 0.010989 *
+Origin     1   0.3746 0.05373 1.6879 0.007992 **
+Plate      3   0.9050 0.12980 1.3593 0.001998 **
+Residual  24   5.3259 0.76393
+Total     29   6.9717 1.00000
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Permutation test for adonis under reduced model
+Terms added sequentially (first to last)
+Permutation: free
+Number of permutations: 1000
+
+adonis2(formula = unifrac ~ Sterility/Plate + Origin, data = grps, permutations = 1000)
+                Df SumOfSqs      R2      F   Pr(>F)
+Sterility        1   0.3663 0.05254 1.6507 0.007992 **
+Origin           1   0.3746 0.05373 1.6879 0.010989 *
+Sterility:Plate  3   0.9050 0.12980 1.3593 0.003996 **
+Residual        24   5.3259 0.76393
+Total           29   6.9717 1.00000
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Permutation test for adonis under reduced model
+Terms added sequentially (first to last)
+Permutation: free
+Number of permutations: 1000
+
+adonis2(formula = unifrac_wt ~ Sterility + Origin, data = grps, permutations = 1000)
+          Df SumOfSqs      R2      F   Pr(>F)
+Sterility  1  0.50368 0.19092 7.3463 0.000999 ***
+Origin     1  0.28325 0.10737 4.1312 0.003996 **
+Residual  27  1.85120 0.70171
+Total     29  2.63813 1.00000
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

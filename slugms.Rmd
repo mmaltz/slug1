@@ -2,18 +2,21 @@
 title: "slug"
 author: "M. Maltz"
 date: "8/20/2018"
-output: 
+output:
   html_document:
-    toc: TRUE
-    toc_float: TRUE
+    toc: yes
     toc_depth: 4
+    toc_float: yes
+  word_document:
+    toc: yes
+    toc_depth: '4'
 ---
 
 ```{r, include=FALSE}
 knitr::opts_chunk$set(cache=TRUE, tidy=TRUE,error = TRUE, eval = TRUE, message = FALSE, warning = FALSE, rows.print=5, cols.min.print=4, fig.width=6, fig.height=4.5)
 ```
 
-```{r Load preliminary packages, include=FALSE}
+```{r Load preliminary packages}
 library(dplyr) ## for data wrangling - %>% function
 library(reshape2) ##melt and cast data
 library(tidyr) # 'separate' function
@@ -25,10 +28,15 @@ library(ggplot2) # plotting
 library(magrittr)
 library(cowplot)
 library(formatR)
-?read_excel
+
 
 ```
+
 ### Logic   
+```{r readMapDJ.csv}
+map6<-read.csv("data/MapDJ.csv", header = TRUE, 
+               col.names =   c("SampleID","BarcodeSequence","LinkerPrimerSequence","Origin","Sterility","Plate","Description"))
+```
 
 **Background:** Denise add text:  
   
@@ -39,9 +47,8 @@ library(formatR)
 ####2. NMDS of unweighted unifrac or jaccard dissimilarity. PERMANOVA with PERMDISP. 
   
 
-```{r read in mapping data, include=FALSE}
-map6<-read.csv("data/MapDJ.csv", header = TRUE, 
-               col.names =   c("SampleID","BarcodeSequence","LinkerPrimerSequence","Origin","Sterility","Plate","Description"))%>%
+```{r unique origins, include=FALSE}
+
   
 unique(map6$Origin)
 
@@ -51,7 +58,7 @@ unique(map6$Origin)
 Split taxonomy column into multiple variables
 ```{r}
 # bacteria otu
-B16S<-read.csv("data/filtered_table_w_metadata.csv", header = TRUE, stringsAsFactors = FALSE)
+B16S<-read.csv("data/FilteredTable.csv", header = TRUE, stringsAsFactors = FALSE)
 
 # split taxa groupings into new columns
 source('slug_functions.R')
@@ -111,17 +118,21 @@ plot_grid(heat.uni, heat.wt, nrow=1, ncol=2)
 # unweighted, most are 50% or more dissimilar. 
 ```  
 
+```{r}
+View(B16S)
+```
+
 ```{r, include=FALSE, eval=FALSE}
 str(map6) #grouping variables 
 colnames(B16S) # community data
 
-otu.taxa<-B16S%>%dplyr::select(OTU=X.OTU.ID, kingdom:species)
+otu.taxa<-B16S%>%dplyr::select(OTU=OTU.ID, kingdom:species)
 write.csv(otu.taxa, 'data/OTU_taxa_id.csv', row.names=FALSE) # save full # reorder columns data
 ```
 
-```{r single and doubletons, eval=FALSE, include=FALSE}
+```{r single and doubletons, include=FALSE, eval=FALSE}
 otu.melt<-B16S%>%dplyr::select(-taxonomy:-species)%>%
-  dplyr::select(OTU = X.OTU.ID, everything())%>%
+  dplyr::select(OTU = OTU.ID, everything())%>%
   melt(id.vars=c('OTU'), variable.name='SampleID')
 
 # remove singletons and doubletons
@@ -158,6 +169,10 @@ otu.comm<-otu.comm[match(colnames(unifrac), otu.comm$SampleID),]
 grps<-map6[match(colnames(unifrac), map6$SampleID),]
 # now that all the data (community, distances, grouping variables) are ordered the same, we can use permanova etc
 ```  
+Structure of grps
+```{r}
+str(grps)
+```
 
 #### Permanova  
 Permanova tests for differences in composition among groups  
@@ -167,35 +182,34 @@ set.seed(304)
 #unifrac distances
 str(grps) #look at data types to indetify error source
 # Elevation is integer - change to factor 
-grps$Elevation<-as.factor(grps$Elevation)
-grps$Month<-as.factor(grps$Month)
 
-ad.uni<-adonis2(unifrac~Month+Elevation, data=grps, permutations=1000, strata='Year')
+slug.uni<-adonis2(unifrac~Sterility+Origin, data=grps, permutations=1000)
+slug.uni
 
-ad.uni<-adonis2(unifrac~Month+Year+Elevation, data=grps, permutations=1000)
-ad.uni
+slug.uni2<-adonis2(unifrac~Sterility+Origin+Plate, data=grps, permutations=1000)
+slug.uni2
 
 #unifrac distances with month nested in year
-ad.uniNest<-adonis2(unifrac~Year/Month+Elevation, data=grps, permutations=1000)
+ad.uniNest<-adonis2(unifrac~Sterility/Plate+Origin, data=grps, permutations=1000)
 ad.uniNest
 
-#unifrac distances weighted by relative abundance
-ad.uniwt<-adonis2(unifrac_wt~Month+Year+Elevation, data=grps, permutations=1000)
+#unifrac distances weighted by relative abundances
+ad.uniwt<-adonis2(unifrac_wt~Sterility+Origin, data=grps, permutations=1000)
 ad.uniwt
 ``` 
-```{r other dist permanova, eval=FALSE, include=FALSE}
+```{r other dist permanova, include=FALSE, eval=FALSE}}
 ## are the results the same with other (non evolutionary) dissimiarlity indices?
 dist.j<-vegdist(otu.comm[,-1], method='jaccard', na.rm=TRUE)
 dist.bc<-vegdist(otu.comm[,-1], method='bray', na.rm=TRUE)
 
-ad.bc<-adonis2(dist.bc~Month+Year+Elevation, data=grps, permutations=1000)
+ad.bc<-adonis2(dist.bc~Sterility+Origin, data=grps, permutations=1000)
 ad.bc
 
-ad.j<-adonis2(dist.j~Month+Year+Elevation, data=grps, permutations=1000)
+ad.j<-adonis2(dist.j~Sterility+Origin, data=grps, permutations=1000)
 ad.j
 
 ```  
-Month and elevation are significant in all tests. Year is not but that is probably because month is nested within year and that is not indicated in the model. 
+Sterility and Origin and Plate are significant in all tests. 
 
 **Manipulate code for test of interest** 
 
@@ -212,7 +226,7 @@ mds.uniwt<-metaMDS(unifrac_wt, k=2, autotransform=FALSE)
 ## both have good stress(below .15)
 ```
 Plot ordination  
-```{r nmds plot df}
+```{r nmds plot df, include=FALSE, eval=FALSE}
 # get NMDS scores for each SampleID
 # scores are returned for each sampleid as a row, collapses dissimilarity data into 2 dimensions
 nmds.uni<-data.frame(scores(mds.uni))
@@ -224,27 +238,27 @@ nmds.uniwt<-nmds.uniwt[match(grps$SampleID,rownames(nmds.uniwt)),]%>%cbind(grps)
 ```
 ```{r plot nmds}
 ggplot(nmds.uni, aes(NMDS1, NMDS2))+
-  geom_point(aes(color=Elevation, shape=Month))
+  geom_point(aes(color=Sterility, shape=Origin))
 ```
 **Manipulate plot code to make figure as desired**  
 
-```{r plot nmds with Year test 1}
+```{r plot nmds with Sterility, include=FALSE, eval=FALSE}
 #Not working to assign Year as a grouping factor
 ggplot(nmds.uni, aes(NMDS1, NMDS2))+
-  geom_point(aes(size=Year, shape=Month))
+  geom_point(aes(size=Sterility, shape=Origin))
 
 # converting variables between numeric and factors changes how ggplot will plot them if hitting errors
-str(nmds.uni$Year)
-nmds.uni<-nmds.uni%>%transform(Year = as.factor(Year))
+str(nmds.uni$Origin)
+nmds.uni<-nmds.uni%>%transform(Origin = as.factor(Sterility))
 
 ggplot(nmds.uni, aes(NMDS1, NMDS2))+
-  geom_point(aes(size=Year, shape=Month))
+  geom_point(aes(size=Sterility, shape=Origin))
 ```
 
-```{r plot nmds with Year test 2}
+```{r plot nmds TRIAL, include=FALSE, eval=FALSE}}
 #Not working to assign Year as a grouping factor
 ggplot(nmds.uni, aes(NMDS1, NMDS2))+
-  geom_point(aes(size=Month, color=Year))
+  geom_point(aes(size=Sterility, color=Origin))
 
 # size for discrete scale is a little funky
 # also there are 2 different levels for the month of october due to spelling differences - correction added upstream to the grouping dataframe
@@ -252,31 +266,31 @@ ggplot(nmds.uni, aes(NMDS1, NMDS2))+
 
 
 
-```{r}
+```{r working up the ggplot with discrete data, include=FALSE, eval=FALSE}}
 #Not running
 ggplot(nmds.uni, aes(NMDS1, NMDS2))+
-  geom_point(aes(color=Elevation, shape=Site), size=3)+
+  geom_point(aes(color=Sterility, shape=Origin), size=3)+
   scale_color_gradient2(low='turquoise', mid='yellow', high='red', midpoint=1500)
 
 # to use scale_color_gradient2, the assigned variable must be continuous (as.numeric) 
 # a shape scale is most useful for categorical data  
 # data type can be: numeric, factor, integer, and character. character and factor are very similar but are treated slightly differently
 
-str(nmds.uni$Elevation)
+str(nmds.uni$Sterility)
 # to convert to numeric back from factor you have to be careful
 # going directly factor to numeric does not work. to preserve the values in a factor, convert to character, then numeric
-nmds.uni$Elevation<-as.character(nmds.uni$Elevation)
-nmds.uni$Elevation<-as.numeric(nmds.uni$Elevation)
+nmds.uni$Sterility<-as.character(nmds.uni$Sterility)
+nmds.uni$Sterility<-as.numeric(nmds.uni$Sterility)
 
 ggplot(nmds.uni, aes(NMDS1, NMDS2))+
-  geom_point(aes(color=Elevation, shape=Site), size=3)+
+  geom_point(aes(color=Sterility, shape=Origin), size=3)+
   scale_color_gradient2(low='turquoise', mid='yellow', high='red', midpoint=1500)
 
 ```
 Separates well by elevation/site, within each elevation the months are grouped together for the most part.  
 
 
-```{r}
+```{r working up the plotting, include=FALSE, eval=FALSE}
 ggplot(nmds.uniwt, aes(NMDS1, NMDS2))+
   geom_point(aes(color=Year, shape=Month), size=4)+
   scale_color_gradient2(low='turquoise', high='red', midpoint=1500)
@@ -301,36 +315,36 @@ ggplot(df_shapes, aes(0, 0, shape = shape)) +
 ```{r editing plots}
 # let's use the fill to indicate the Year, shape for the Month
 
-# color = Elevation
+# color = Sterility
 ggplot(nmds.uni, aes(NMDS1, NMDS2))+
-  geom_point(aes(color=Elevation), size=3)+
+  geom_point(aes(color=Sterility), size=3)+
   scale_color_gradient2(low='turquoise', mid='yellow', high='red', midpoint=1500)+
   theme_bw()
 
-# fill = Year
+# fill = Sterility
 ggplot(nmds.uni, aes(NMDS1, NMDS2))+
-  geom_point(aes(color=Elevation, fill=Year), size=3)+
+  geom_point(aes(color=Sterility, fill=Origin), size=3)+
   scale_color_gradient2(low='turquoise', mid='yellow', high='red', midpoint=1500)+
   theme_bw()
 # note - this is the same as before even with fill = Year added because we are using a shape that cannot be filled
 
 # fill = Year, shape = 21
 ggplot(nmds.uni, aes(NMDS1, NMDS2))+
-  geom_point(aes(color=Elevation, fill=Year), shape = 21,color='black', size=3)+
+  geom_point(aes(color=Sterility, fill=Origin), shape = 21,color='black', size=3)+
   scale_color_gradient2(low='turquoise', mid='yellow', high='red', midpoint=1500)+
   theme_bw()
 # shape = 21 is the filled circle
 
 # shape = Month
 ggplot(nmds.uni, aes(NMDS1, NMDS2))+
-  geom_point(aes(color=Elevation, fill=Year, shape=Month),color='black', size=3)+
+  geom_point(aes(color=Sterility, fill=Origin, shape=Plate),color='black', size=3)+
   scale_color_gradient2(low='turquoise', mid='yellow', high='red', midpoint=1500)+
   scale_shape_manual(values=c(21, 22, 24))+ # the values correspond to the shapes above
   theme_bw()
 
 # and to change the color of the fill:
 ggplot(nmds.uni, aes(NMDS1, NMDS2))+
-  geom_point(aes(color=Elevation, fill=Year), shape = 21,color='black', size=3)+
+  geom_point(aes(color=Sterility, fill=Origin), shape = 21,color='black', size=3)+
   scale_color_gradient2(low='turquoise', mid='yellow', high='red', midpoint=1500)+
   scale_shape_manual(values=c(21, 22, 24))+ # the values correspond to the shapes above
   scale_fill_manual(values=c('black','white'))+
@@ -341,7 +355,7 @@ ggplot(nmds.uni, aes(NMDS1, NMDS2))+
 mds.uni$stress #the stress
 
 ggplot(nmds.uni, aes(NMDS1, NMDS2))+
-  geom_point(aes(color=Elevation, fill=Year, shape=Month),color='black', size=3)+
+  geom_point(aes(color=Sterility, fill=Plate, shape=Origin),color='black', size=3)+
   scale_color_gradient2(low='turquoise', mid='yellow', high='red', midpoint=1500)+
   scale_shape_manual(values=c(21, 22, 24))+ # the values correspond to the shapes above
   scale_fill_manual(values=c('black','white'))+
@@ -376,16 +390,16 @@ pcoa.df<-pcoa.df[match(grps$SampleID,rownames(pcoa.df)),]%>%cbind(grps)
 
 ```{r include=FALSE, eval=FALSE}
 ##dbrda
-#pcoa.uni<-capscale(unifrac~Elevation+Month,data=grps)
+#pcoa.uni<-capscale(unifrac~Sterility+Plate,data=grps)
 
 #not working
 #ggplot(pcoa.uni, aes(NMDS1, NMDS2))+
-#  geom_point(aes(color=Elevation, shape=Site), size=3)+
+#  geom_point(aes(color=Sterility, shape=Origin), size=3)+
 #  scale_color_gradient2(low='turquoise', mid='yellow', high='red', midpoint=1500)
 
 
 #ggplot(pcoa.df, aes(NMDS1, NMDS2))+
-#  geom_point(aes(color=Elevation, shape=Site), size=4)+
+#  geom_point(aes(color=Sterility, shape=Plate), size=4)+
 #  scale_color_gradient2(low='turquoise', mid='yellow', high='red', midpoint=1500)
 
 ```
@@ -411,7 +425,7 @@ This procedure identifies OTUs as indicator species independently from their abu
   g. Bacterial and fungal indicator OTUs that were significantly co-correlated were displayed in networks with the edge-weighted spring embedded algorithm layout implemented in Cytoscape where Spearman correlation values were used to weight the edges between the nodes representing the OTUs (Hartmann et al., 2015).”   
 
 
-###**Q3. Can the observed variation in XXX be explained by provenance? By nutrient composition?**
+###**Q3. Can the observed variation in XXX be explained by origin? By sterility?**
 ####Outputs: 
 ####1. Multiple regression on distance matrix  
 

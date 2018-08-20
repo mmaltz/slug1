@@ -1,5 +1,4 @@
-# Constructed from biom file
-#OTU ID	DJP4	DJAS5	DJP2	DJLS1	DJP3	DJBS2	DJBLN4	DJAS4	DJLS2	DJCS5	DJLS5	DJP5	DJP1	DJCS1	DJCS4	DJCS2	DJCS3	DJCLN5	DJBS1	DJAS2	DJAS3	DJLS4	DJBLN3	DJBS5	DJALN2	DJALN1	DJBS4	DJAS1	DJLS3	DJBS3	taxonomy
+#OTU ID	P4	AS5	P2	LS1	P3	BS2	BLN4	AS4	LS2	CS5	LS5	P5	P1	CS1	CS4	CS2	CS3	CLN5	BS1	AS2	AS3	LS4	BLN3	BS5	ALN2	ALN1	BS4	AS1	LS3	BS3	taxonomy
 4371191	2.0	1.0	3.0	1.0	4.0	1.0	1.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	k__Bacteria; p__Proteobacteria; c__Gammaproteobacteria; o__Pseudomonadales; f__Pseudomonadaceae; g__Pseudomonas; s__
 1036749	0.0	0.0	0.0	0.0	0.0	2.0	0.0	8.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	k__Bacteria; p__Firmicutes; c__Bacilli; o__Gemellales; f__Gemellaceae; g__; s__
 259732	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	3.0	2.0	3.0	1.0	1.0	1.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	k__Bacteria; p__Proteobacteria; c__Alphaproteobacteria; o__Caulobacterales; f__Caulobacteraceae; g__Brevundimonas; s__diminuta
