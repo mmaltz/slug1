@@ -266,7 +266,7 @@ ggplot(nmds.uni, aes(NMDS1, NMDS2))+
 
 
 
-```{r working up the ggplot with discrete data, include=FALSE, eval=FALSE}}
+```{r working up the ggplot with discrete data, include=FALSE, eval=FALSE}
 #Not running
 ggplot(nmds.uni, aes(NMDS1, NMDS2))+
   geom_point(aes(color=Sterility, shape=Origin), size=3)+
