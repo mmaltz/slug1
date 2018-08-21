@@ -197,7 +197,7 @@ ad.uniNest
 ad.uniwt<-adonis2(unifrac_wt~Sterility+Origin, data=grps, permutations=1000)
 ad.uniwt
 ``` 
-```{r other dist permanova, include=FALSE, eval=FALSE}}
+```{r other dist permanova, include=FALSE}
 ## are the results the same with other (non evolutionary) dissimiarlity indices?
 dist.j<-vegdist(otu.comm[,-1], method='jaccard', na.rm=TRUE)
 dist.bc<-vegdist(otu.comm[,-1], method='bray', na.rm=TRUE)
@@ -255,7 +255,7 @@ ggplot(nmds.uni, aes(NMDS1, NMDS2))+
   geom_point(aes(size=Sterility, shape=Origin))
 ```
 
-```{r plot nmds TRIAL, include=FALSE, eval=FALSE}}
+```{r plot nmds TRIAL, include=FALSE, eval=FALSE}
 #Not working to assign Year as a grouping factor
 ggplot(nmds.uni, aes(NMDS1, NMDS2))+
   geom_point(aes(size=Sterility, color=Origin))
@@ -318,7 +318,6 @@ ggplot(df_shapes, aes(0, 0, shape = shape)) +
 # color = Sterility
 ggplot(nmds.uni, aes(NMDS1, NMDS2))+
   geom_point(aes(color=Sterility), size=3)+
-  scale_color_gradient2(low='turquoise', mid='yellow', high='red', midpoint=1500)+
   theme_bw()
 
 # fill = Sterility
